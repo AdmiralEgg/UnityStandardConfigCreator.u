@@ -1,0 +1,10 @@
+{
+    "name": "com.admiralegg.tools",
+    "version": "1.0.0",
+    "displayName": "ConfigureProject",
+    "description": "Configure Project on Startup",
+    "unity": "2022.2",
+    "dependencies": {},
+    "keywords": [],
+    "author": {}
+}
