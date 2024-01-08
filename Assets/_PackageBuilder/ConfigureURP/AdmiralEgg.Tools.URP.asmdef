@@ -11,7 +11,21 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
+    "defineConstraints": [
+        "URP_EXISTS",
+        "POSTPROCESSING_EXISTS"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "14.0.7",
+            "define": "URP_EXISTS"
+        },
+        {
+            "name": "com.unity.postprocessing",
+            "expression": "3.2.2",
+            "define": "POSTPROCESSING_EXISTS"
+        }
+    ],
     "noEngineReferences": false
 }

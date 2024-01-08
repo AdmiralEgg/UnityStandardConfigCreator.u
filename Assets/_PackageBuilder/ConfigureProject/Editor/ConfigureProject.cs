@@ -24,19 +24,28 @@ namespace AdmiralEgg.Tools
         {
             "Imports",
             "Documentation",
+            "Working",
+
+            // All Project folders
             "_Project",
-            "_Project/Materials",
-            "_Project/MeshAndUV",
-            "_Project/Prefabs",
-            "_Project/Scripts",
-            "_Project/Scripts/Managers",
-            "_Project/Scripts/UI",
-            "_Project/Scripts/ScriptableObjects",
-            "_Project/Shaders",
+            "_Project/Animation",
             "_Project/Audio",
-            "_Project/Textures",
             "_Project/Data",
-            "_Project/Settings"
+            "_Project/MaterialsAndUV",
+            "_Project/Mesh",
+            "_Project/Prefabs",
+            "_Project/Scenes",
+            "_Project/Scripts",
+            "_Project/Scripts/Camera",
+            "_Project/Scripts/Input",
+            "_Project/Scripts/Managers",
+            "_Project/Scripts/ScriptableObjects",
+            "_Project/Scripts/UI",
+            "_Project/Settings",
+            "_Project/Shaders",
+            "_Project/Sprites",
+            "_Project/Textures",
+            "_Project/UI"
         };
 
         // Scene folder is separated, as the initial scene is moved here.
@@ -83,6 +92,8 @@ namespace AdmiralEgg.Tools
         {
             "--- MANAGERS ---",
             "--- CAMERA ---",
+            "--- LIGHTING ---",
+            "--- OBJECTS ---",
             "--- ENVIRONMENT ---",
             "--- UI ---",
             "--- MISC ---"
@@ -166,10 +177,8 @@ namespace AdmiralEgg.Tools
         static void ConfigureEditor()
         {
             // Disable editor camera easing and acceleration
-#if UNITY_2019_1_OR_NEWER
             SceneView.lastActiveSceneView.cameraSettings.easingEnabled = false;
             SceneView.lastActiveSceneView.cameraSettings.accelerationEnabled = false;
-#endif
 
             // GIZMOS
             // Set sceneview gizmos size https://github.com/unity3d-kr/GizmoHotkeys/blob/05516ebfc3ce1655cbefb150d328e2b66e03646d/Editor/SelectionGizmo.cs
@@ -326,12 +335,16 @@ namespace AdmiralEgg.Tools
         // Packages Offline Data (requies fixed version)
         static Dictionary<string, string> addPackages = new Dictionary<string, string>()
         {
+            { "com.unity.addressables", "1.21.19" },
+            { "com.realgames.dear-imgui", "https://github.com/mattmanj17/dear-imgui-unity.git#matthewd"},
             { "com.unity.ide.visualstudio", "2.0.22" },
             { "com.unity.cinemachine", "2.9.7" },
             { "com.unity.textmeshpro", "3.0.6" },
             { "com.unity.render-pipelines.universal", "14.0.7" },
             { "com.unity.postprocessing", "3.2.2" },
-            { "com.unity.polybrush", "1.1.5" }
+            { "com.unity.polybrush", "1.1.5" },
+            { "com.unity.shadergraph", "14.0.7" },
+            { "com.unity.inputsystem", "1.5.1" }
         };
 
         static string[] removePackages = new string[]

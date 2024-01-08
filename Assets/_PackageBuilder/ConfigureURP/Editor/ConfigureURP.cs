@@ -7,7 +7,7 @@ using System.Threading;
 using UnityEditor.UIElements;
 using UnityEditor.ShaderKeywordFilter;
 // Namespaces below require packages to be installed.
-#if IGNOREME
+#if (URP_EXISTS && POSTPROCESSING_EXISTS)
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.PostProcessing;
 #endif
@@ -17,7 +17,7 @@ namespace AdmiralEgg.Tools.URP
     public class ConfigureURP
     {
         static string settingsPath = "Assets/_Project/Settings";
-        static string materialsPath = "Assets/_Project/Materials";
+        static string materialsPath = "Assets/_Project/MaterialsAndUV";
         
         // Asset Names
         static string skyboxMaterialName = "DefaultSkybox.mat";
@@ -37,9 +37,7 @@ namespace AdmiralEgg.Tools.URP
             // Initial refresh to make sure we're working with current asset data
             AssetDatabase.Refresh();
 
-            // TODO: Check if URP package is installed
-            // TODO: Check if PostProcessing package is installed
-#if IGNOREME
+#if (URP_EXISTS && POSTPROCESSING_EXISTS)
             UniversalRendererData urd = ConfigureRendererData(); // This is derived from ScriptableRendererData.
 
             UniversalRenderPipelineAsset urpa = ConfigureRenderPipelineAsset(urd); // Derived from RenderPipelineAsset
@@ -55,14 +53,14 @@ namespace AdmiralEgg.Tools.URP
 
             // TODO: Fix having to run the script multiple times to move the Global Settings. Why isn't it being found?
             //Thread.Sleep(10000); //Problem isn't time dependent.
-#if IGNOREME
+#if (URP_EXISTS && POSTPROCESSING_EXISTS)
             ConfigureRenderPipelineGlobalSettings();
 #endif
 
             ConfigureSkyboxMaterial();
 
             // BUG: Rerunning removes all the Components in this.
-#if IGNOREME
+#if (URP_EXISTS && POSTPROCESSING_EXISTS)
             PostProcessProfile ppp = ConfigurePostProcessing();
             ConfigurePostProcessVolume(ppp);
 #endif
@@ -70,7 +68,7 @@ namespace AdmiralEgg.Tools.URP
             ConfigureLightingSettings();
         }
 
-#if IGNOREME
+#if (URP_EXISTS && POSTPROCESSING_EXISTS)
         private static void ConfigurePostProcessVolume(PostProcessProfile ppp)
         {
             // If a Post Process Volume Game Object already exists, do not create a new one.
@@ -172,7 +170,7 @@ namespace AdmiralEgg.Tools.URP
             AssetDatabase.Refresh();
         }
 
-#if IGNOREME
+#if (URP_EXISTS && POSTPROCESSING_EXISTS)
         private static UniversalRendererData ConfigureRendererData()
         {
             // Only do this if we don't already have an asset of the same name under Assets
@@ -193,7 +191,7 @@ namespace AdmiralEgg.Tools.URP
         }
 #endif
 
-#if IGNOREME
+#if (URP_EXISTS && POSTPROCESSING_EXISTS)
         private static UniversalRenderPipelineAsset ConfigureRenderPipelineAsset(UniversalRendererData urd)
         {
             if (urd == null)
