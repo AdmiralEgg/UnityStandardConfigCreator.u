@@ -24,7 +24,7 @@ namespace AdmiralEgg.Tools
             string gitIgnoreGUID = AssetDatabase.FindAssets(GITIGNORE_SEARCHSTRING, new[] { $"Assets/Editor/AEGStandardProjectSetup/ConfigureGitSetup/{VERSION}" }).FirstOrDefault();
             string gitActionsGUID = AssetDatabase.FindAssets(GITACTIONSDIR_SEARCHSTRING, new[] { $"Assets/Editor/AEGStandardProjectSetup/ConfigureGitSetup/{VERSION}" }).FirstOrDefault();
 
-            if (gitIgnoreGUID != null) 
+            if (gitIgnoreGUID != null)
             {
                 Debug.Log("GitIgnore:" + AssetDatabase.GUIDToAssetPath(gitIgnoreGUID));
             }
@@ -48,21 +48,32 @@ namespace AdmiralEgg.Tools
                 Debug.LogWarning($"Could not create zip file: {ex}");
             }
 
-            
-            //try
-            //{
-            //    ZipFile.ExtractToDirectory(@".\githubactions.zip", GITACTIONSDIR_NAME);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.LogWarning($"Could not extract zip file: {ex}");
-            //}
+            try
+            {
+                ZipFile.ExtractToDirectory(@".\githubactions.zip", GITACTIONSDIR_NAME);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Could not extract zip file: {ex}");
+            }
 
-            //// Cleanup .meta files
-            //if (File.Exists(@".\githubactions.zip"))
-            //{
-            //    File.Delete(@".\githubactions.zip");
-            //}
+            // Cleanup .meta files
+            if (Directory.Exists(@$".\{GITACTIONSDIR_NAME}"))
+            {
+                EnumerationOptions enumerationOptions = new EnumerationOptions();
+                enumerationOptions.RecurseSubdirectories = true;
+
+                foreach (string filePath in Directory.EnumerateFiles(@$".\{GITACTIONSDIR_NAME}", "*.meta", enumerationOptions))
+                {
+                    File.Delete(filePath);
+                }
+            }
+
+            // Cleanup .zip file
+            if (File.Exists(@".\githubactions.zip"))
+            {
+                File.Delete(@".\githubactions.zip");
+            }
 
             try
             {
