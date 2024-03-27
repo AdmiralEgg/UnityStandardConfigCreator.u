@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace AdmiralEgg.Tools
 {
@@ -13,26 +14,15 @@ namespace AdmiralEgg.Tools
         [MenuItem("Tools/Initial Setup Tools/[5] Add Spinning Cube", false, 4)]
         public static void Initialize()
         {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
-            // Move scripts, then add as components
-            MoveScript("SpinCube", SCRIPTS_PATH);
-            MoveScript("PressEscapeToExit", SCRIPTS_PATH);
-
-            cube.AddComponent<SpinCube>();
-            cube.AddComponent<PressEscapeToExit>();
-
             // Copy scripts back to their original locations so we avoid assembly reference issues.
-            CopyScript("SpinCube", PACKAGE_PATH);
-            CopyScript("PressEscapeToExit", PACKAGE_PATH);
-        }
+            CopyScript("SpinCube", SCRIPTS_PATH);
+            CopyScript("PressEscapeToExit", SCRIPTS_PATH);
 
-        private static void MoveScript(string scriptName, string movePath)
-        {
-            string scriptGUID = AssetDatabase.FindAssets($"{scriptName} t:Script").FirstOrDefault();
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.name = "SpinCube";
+            cube.transform.position += Vector3.forward * 3;
 
-            AssetDatabase.MoveAsset(AssetDatabase.GUIDToAssetPath(scriptGUID), Path.Join(movePath, $"{scriptName}.cs"));
-            AssetDatabase.Refresh();
+            EditorUtility.DisplayDialog("Manual Setup Step Required", "SpinCube created!\n\nDrag and drop scripts,\n- SpinCube\n- PressEscapeToExit\n\nFrom the _Project/Scripts folder onto the SpinCube.", "Finished");
         }
 
         private static void CopyScript(string scriptName, string copyPath)
