@@ -71,5 +71,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-Assets/FullScreen/*
-Assets/_AssetPacks/*
+# All third party data
+/[Aa]ssets/[Tt]hirdParty/*
+
+# Ignore any .meta files in the .github folder
+/.github/*.meta
