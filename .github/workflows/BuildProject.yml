@@ -1,42 +1,77 @@
-# Builds the Project
-name: Build Project 🔨
+# Builds the Project. Triggered manually, and on an overnight schedule.
+name: Build Unity Project 🔨
 
-on: [push]
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: 0 3 * * 1,3,5
+
+run-name: Build 🔨 [RunId:${{github.run_id}}]
 
 jobs:
-  test:
-    name: Run build for platform ${{ matrix.targetPlatform }}
+  check_date:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        targetPlatform:
-          - StandaloneWindows64
+    name: Check latest commit
+    outputs:
+      should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          lfs: true
+      - name: print latest_commit
+        run: echo ${{ github.sha }}
 
-      - uses: actions/cache@v3 #https://github.com/actions/cache
-        with:
-          path: Library
-          key: Library
-          lookup-only: true
+      - id: should_run
+        continue-on-error: true
+        name: check latest commit is less than a day
+        if: ${{ github.event_name == 'schedule' }}
+        run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
+  
+  build:
+    name: Build for Platform - ${{ matrix.targetPlatform }}
+    needs: check_date
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
-      - uses: game-ci/unity-builder@v4
-        id: buildWin64
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          versioning: Semantic
-          targetPlatform: ${{ matrix.targetPlatform }}
-      
-      - run: echo 'Project Build Version ${{ steps.buildWin64.outputs.buildVersion }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        projectPath: 
+          - BuildTests.u
+        targetPlatform: 
+          - StandaloneWindows64
+          - WebGL
+          - Android
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Build_${{ matrix.targetPlatform }}_${{ steps.buildWin64.outputs.buildVersion }}
-          path: build/${{ matrix.targetPlatform }}
+    steps:    
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+        lfs: false
+
+    - name: Structure of checkout files
+      run: ls -R
+
+    - uses: actions/cache@v4 #https://github.com/actions/cache
+      id: cache
+      with:
+        path: Library
+        key: Library-${{ matrix.projectPath }}-ubuntu-${{ matrix.targetPlatform }}
+
+    - run: echo 'Cache Hit - ${{ steps.cache.outputs.cache-hit }}'
+
+    - uses: game-ci/unity-builder@v4
+      id: builder
+      env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      with:
+        versioning: Semantic
+        targetPlatform: ${{ matrix.targetPlatform }}
+    
+    - run: echo 'Project Build Version ${{ steps.builder.outputs.buildVersion }}'
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Build_${{ matrix.targetPlatform }}_${{ steps.builder.outputs.buildVersion }}
+        path: build/${{ matrix.targetPlatform }}

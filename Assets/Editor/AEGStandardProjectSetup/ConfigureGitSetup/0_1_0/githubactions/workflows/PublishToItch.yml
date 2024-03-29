@@ -1,0 +1,95 @@
+name: Publish to Itch & Notfiy Discord 🚢🚨
+
+on: 
+  workflow_dispatch:
+    inputs:
+      buildartifactrunid:
+        description: 'Add RunId'
+        type: string
+        required: true
+      senddiscordnotification:
+        description: 'Send notification to Discord?' 
+        required: false
+        type: boolean
+        default: false
+      publishplatform:
+        description: 'Built platform artifact to publish'
+        type: choice
+        required: false
+        default: 'StandaloneWindows64'
+        options:
+          - StandaloneWindows64
+          - WebGL
+          - Android
+
+env:
+  ITCH_USERNAME: admiralegg
+  ITCH_GAME_ID: buildtestu
+  PROJECT_PAGE_URL: https://admiralegg.itch.io/buildtestu
+
+jobs:
+  publish:
+    name: Publish to Itch & Notfiy Discord
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set an Itch build channel
+        id: itchBuildChannel
+        run: |
+          if [[ "${{ inputs.publishplatform }}" == "StandaloneWindows64" ]]; then
+            echo "CHANNEL_NAME=win64" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.publishplatform }}" == "WebGL" ]]; then
+            echo "CHANNEL_NAME=webgl" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.publishplatform }}" == "Android" ]]; then
+            echo "CHANNEL_NAME=android" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Show Itch build channel  
+        run: echo "Build channel set to - ${{steps.itchBuildChannel.outputs.CHANNEL_NAME}}"
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with: 
+          pattern: Build_${{inputs.publishplatform}}* # pattern of artifact to download
+          path: build
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{inputs.buildartifactrunid}}
+
+      - name: Display structure of downloaded files
+        run: ls -R
+      
+        # Get version from the build zip name
+      - name: Find the build ID from the artifact name
+        id: buildNumber
+        run: |
+          DIR_NAME=$(find build -maxdepth 1 -type d -exec basename {} \;)
+          RESULT="${DIR_NAME##*_}"
+          echo $RESULT
+          echo "::set-output name=foundbuildnumber::$RESULT"
+
+      - name: Found Build Number
+        run: echo "Found - ${{steps.buildNumber.outputs.foundbuildnumber}}"
+
+      - name: Publish to Itch 🚢
+        id: itchpublish
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{secrets.BUTLER_API_KEY}}
+          gameData: ./build/
+          itchUsername: ${{env.ITCH_USERNAME}}
+          itchGameId: ${{env.ITCH_GAME_ID}}
+          buildChannel: ${{steps.itchBuildChannel.outputs.CHANNEL_NAME}}
+          buildNumber: ${{steps.buildNumber.outputs.foundbuildnumber}}
+      
+      - name: Notify Discord 🚨
+        if: ${{ inputs.senddiscordnotification }} == 'true'
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          message: |
+            New Itch Build Published! 
+            ${{ env.PROJECT_PAGE_URL }}
+
+            Platform: ${{steps.itchBuildChannel.outputs.CHANNEL_NAME}}
+            Build Id: ${{steps.buildNumber.outputs.foundbuildnumber}}

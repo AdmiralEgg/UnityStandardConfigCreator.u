@@ -1,8 +1,9 @@
 # Summary: Runs tests against the project.
 # Push Trigger. Test in Play mode only.
-name: Run Project Tests 📊
+name: Run Project Tests (Unused) 📊
 
-on: [push, pull_request]
+on:
+  workflow_dispatch: {}
 
 jobs:
   test:

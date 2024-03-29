@@ -76,3 +76,6 @@ crashlytics-build.properties
 
 # Ignore any .meta files in the .github folder
 /.github/*.meta
+
+# Include the built package
+!AEGStandardProjectSetup.unitypackage

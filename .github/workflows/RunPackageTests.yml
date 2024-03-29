@@ -1,6 +1,6 @@
 # Summary: Runs tests against a package. Package dir must be defined.
 # Manual Trigger.
-name: Run Package Tests 📊
+name: Run Package Tests (Unused) 📊
 
 on:
   workflow_dispatch: {}
